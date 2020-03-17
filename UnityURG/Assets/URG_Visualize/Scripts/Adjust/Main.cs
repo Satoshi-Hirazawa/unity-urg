@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace AmebaStrike.Adjust {
+namespace URG.Adjust {
     public class Main : MonoBehaviour {
         [SerializeField] AdjustDataConfigurator adjustDataConfigurator;
         [SerializeField] URGHandler urgHandler;

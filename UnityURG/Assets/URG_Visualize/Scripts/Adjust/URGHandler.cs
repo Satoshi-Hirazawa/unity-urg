@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AmebaStrike {
+namespace URG {
     public class URGHandler : MonoBehaviour {
 
         [SerializeField] URGTcpClient tcpClient;

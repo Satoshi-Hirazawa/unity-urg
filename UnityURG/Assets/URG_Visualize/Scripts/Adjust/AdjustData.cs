@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AmebaStrike {
+namespace URG {
     [Serializable]
     public class AdjustData {
         public float displayWidth = 450;

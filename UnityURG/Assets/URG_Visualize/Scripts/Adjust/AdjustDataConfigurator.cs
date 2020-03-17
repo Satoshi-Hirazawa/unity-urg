@@ -5,7 +5,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace AmebaStrike {
+namespace URG {
     public class AdjustDataConfigurator : MonoBehaviour {
 
 

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace AmebaStrike {
+namespace URG {
     public class DebugDraw : MonoBehaviour {
 
         public Material material;
