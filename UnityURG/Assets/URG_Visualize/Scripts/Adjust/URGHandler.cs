@@ -6,39 +6,36 @@ using UnityEngine;
 
 namespace AmebaStrike {
     public class URGHandler : MonoBehaviour {
-        [SerializeField]
-        URGTcpClient tcpClient;
-        [SerializeField]
-        AdjustDataConfigurator adjustDataConfigurator;
-        [SerializeField]
-        DebugDraw debugDraw;
 
-        [SerializeField]
-        string ip = "192.168.0.10";
-        [SerializeField]
-        int port = 10940;
+        [SerializeField] URGTcpClient tcpClient;
+        [SerializeField] AdjustDataConfigurator adjustDataConfigurator;
+        [SerializeField] DebugDraw debugDraw;
 
-        [SerializeField]
-        float start_deg = -45;
-        [SerializeField]
-        float end_deg = 225;
+        [SerializeField] string ip = "192.168.0.10";
+        [SerializeField] int port = 10940;
+
+        [SerializeField] float start_deg = -45;
+        [SerializeField] float end_deg = 225;
 
         [SerializeField, Range(0, 1)] float sizeMinThreshold = 0.05f;
         [SerializeField, Range(0.1f, 1)] float sizeMaxThreshold = 0.05f;
         [SerializeField, Range(0, 1)] float centerThreshold = 0.05f;
-        [SerializeField] int detectObjNum = 1;
+        [SerializeField] int detectObjectQuantity = 1;
 
         int start_index;
         int end_index;
-        SCIP_Parameter parameter;
-        List<int> distances = new List<int>();
-        List<Vector2> positions = new List<Vector2>();
         long timestamp = 0;
         bool isUpdateSensor = false;
-        AdjustData adjustData = new AdjustData();
         bool isDebugDraw;
         Vector2 centerPos;
+
+        List<int> distances = new List<int>();
+        List<Vector2> positions = new List<Vector2>();
         List<DetectObject> detectObjectList = new List<DetectObject>();
+
+        SCIP_Parameter parameter;
+        AdjustData adjustData = new AdjustData();
+
         enum State {
             DEFAULT,
             OPEN,
@@ -49,13 +46,15 @@ namespace AmebaStrike {
         State state;
 
         public Action<Vector2> OnDetect;
-        public Action OnNotDetect;
+        public Action<Vector2, int> OnDetectionPosition;
+        public Action OnDetectionEnd;
 
         public void Init() {
             detectObjectList = new List<DetectObject>();
             tcpClient.Open(ip, port);
             state = State.OPEN;
         }
+
         public void SetAdjustData(AdjustData data) {
             adjustData = data;
             centerPos = new Vector2(data.offsetX * 0.001f, (data.displayHeight * 0.5f + data.offsetY) * 0.001f);
@@ -63,6 +62,7 @@ namespace AmebaStrike {
                 debugDraw.SetAdjustData(data);
             }
         }
+
         public void SetIsDebugDraw(bool b) {
             isDebugDraw = b;
         }
@@ -92,7 +92,6 @@ namespace AmebaStrike {
                             if (isDebugDraw) {
                                 DebugDrawRay();
                             }
-                            // debugDraw.UpdateValue(distances);
                             SearchObject();
                             isUpdateSensor = false;
                         }
@@ -100,16 +99,17 @@ namespace AmebaStrike {
                     break;
             }
         }
+
         void SearchObject() {
-
-
 
             bool isDetected = false;
             List<DetectObject> newDetectObjectList = new List<DetectObject>();
+            
             for (int i = 0; i < distances.Count; i++) {
                 float deg = adjustData.angleZ + IndexToDeg(start_index + i);
                 Vector2 position = centerPos + new Vector2(Mathf.Cos(deg * Mathf.Deg2Rad), Mathf.Sin(deg * Mathf.Deg2Rad)) * distances[i] * 0.001f;
                 Debug.DrawLine(centerPos, position, Color.white);
+
                 if (0 < distances[i] && -(adjustData.displayWidth * 0.0005f) < position.x && position.x < adjustData.displayWidth * 0.0005f &&
                                         -(adjustData.displayHeight * 0.0005f) < position.y && position.y < adjustData.displayHeight * 0.0005f) {
                     if (!isDetected) {
@@ -121,29 +121,30 @@ namespace AmebaStrike {
                         newDetectObjectList.Add(detectObject);
 
                         isDetected = true;
-                    } else {
+                    } 
+                    else {
                         newDetectObjectList[newDetectObjectList.Count - 1].indices.Add(i);
                         newDetectObjectList[newDetectObjectList.Count - 1].positions.Add(position);
                         newDetectObjectList[newDetectObjectList.Count - 1].degrees.Add(deg);
-
                     }
-                } else {
+                } 
+                else {
                     isDetected = false;
                 }
             }
             if(detectObjectList.Count == 0){
-                OnNotDetect();
+                OnDetectionEnd();
             }
 
             for (int i = 0; i < newDetectObjectList.Count; i++) {
-                if(detectObjNum <= i) break;
+                if(detectObjectQuantity <= i) break;
 
                 newDetectObjectList[i].CalcCenter();
                 newDetectObjectList[i].CalcSize();
+
                 for (int j = 0; j < newDetectObjectList[i].positions.Count; j++) {
                     Debug.DrawRay(Vector3.zero, newDetectObjectList[i].positions[j], Color.magenta);
                 }
-                //bool isNew = true;
                 for (int j = 0; j < detectObjectList.Count; j++) {
                     // Debug.Log(Vector2.Distance(newDetectObjectList[i].center, detectObjectList[j].center));
                     if (Vector2.Distance(newDetectObjectList[i].center, detectObjectList[j].center) < centerThreshold) {
@@ -151,24 +152,25 @@ namespace AmebaStrike {
 
                         if (newDetectObjectList[i].size > sizeMinThreshold && newDetectObjectList[i].size < sizeMaxThreshold) {
                             if (OnDetect != null) {
-                                OnDetect(newDetectObjectList[i].center);
+                                OnDetectionPosition(newDetectObjectList[i].center, i);
                             }
                         }
                     }
                 }
 
-                if (newDetectObjectList[i].count == 2) {
-                    // Debug.Log(newDetectObjectList[i].size);
-                    if (newDetectObjectList[i].size > sizeMinThreshold)  {
-                        if (OnDetect != null) {
-                            OnDetect(newDetectObjectList[i].center);
-                        }
-                    }
-                }
+                // if (newDetectObjectList[i].count == 2) {
+                //     // Debug.Log(newDetectObjectList[i].size);
+                //     if (newDetectObjectList[i].size > sizeMinThreshold)  {
+                //         if (OnDetect != null) {
+                //             OnDetect(newDetectObjectList[i].center);
+                //         }
+                //     }
+                // }
             }
             detectObjectList.Clear();
             detectObjectList = newDetectObjectList;
         }
+
         public void OnReceiveParameter(string responce) {
 
             parameter = new SCIP_Parameter();
@@ -184,7 +186,7 @@ namespace AmebaStrike {
                     );
                 state = State.SCAN;
             } else {
-                Debug.Log("error !!!");
+                Debug.Log("ReceiveParameter error");
             }
             tcpClient.OnReceiveCallback -= OnReceiveParameter;
         }
@@ -210,16 +212,6 @@ namespace AmebaStrike {
             if (debugDraw != null) {
                 debugDraw.UpdateValue(distances);
             }
-            /*
-#if UNITY_EDITOR
-            Vector3 start = Vector3.zero;
-            for (int i = 0; i < distances.Count; i++) {
-                float deg = adjustData.angleZ + IndexToDeg(start_index + i);
-                Vector3 dir = new Vector3(Mathf.Cos(deg * Mathf.Deg2Rad), Mathf.Sin(deg * Mathf.Deg2Rad), 0) * distances[i] * 0.001f;
-                Debug.DrawRay(start, dir);
-            }
-#endif
-             */
         }
 
         public void StopScan() {
@@ -227,12 +219,14 @@ namespace AmebaStrike {
                 tcpClient.Send(SCIP_Writer.QT());
             }
         }
+
         void OnDisable() {
             if (state == State.SCAN) {
                 tcpClient.Send(SCIP_Writer.QT());
             }
         }
     }
+
     class DetectObject {
         public Vector2 center;
         public float size;
@@ -247,14 +241,8 @@ namespace AmebaStrike {
             positions = new List<Vector2>();
             degrees = new List<float>();
         }
+
         public void CalcCenter() {
-            /*
-            Vector2 sum = Vector2.zero;
-            for (int i = 0; i < positions.Count; i++) {
-                sum += positions[i];
-            }
-            center = sum / (float)positions.Count;
-             */
             int centerIndex = Mathf.FloorToInt(positions.Count / 2);
             center = positions[centerIndex] + new Vector2(Mathf.Cos(degrees[centerIndex] * Mathf.Deg2Rad), Mathf.Sin(degrees[centerIndex] * Mathf.Deg2Rad)) * 30f * 0.001f;
         }
@@ -263,5 +251,4 @@ namespace AmebaStrike {
             size = Vector2.Distance(positions[0], positions[positions.Count - 1]);
         }
     }
-
 }

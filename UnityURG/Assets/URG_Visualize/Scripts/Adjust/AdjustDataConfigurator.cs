@@ -7,22 +7,17 @@ using UnityEngine.UI;
 
 namespace AmebaStrike {
     public class AdjustDataConfigurator : MonoBehaviour {
+
+
+        [SerializeField] InputField displayWidthInput;
+        [SerializeField] InputField displayHeightInput;
+        [SerializeField] InputField offsetXInput;
+        [SerializeField] InputField offsetYInput;
+        [SerializeField] InputField angleZInput;
+        [SerializeField] InputField distanceInput;
         public AdjustData Data;
-
-        [SerializeField]
-        InputField displayWidthInput;
-        [SerializeField]
-        InputField displayHeightInput;
-        [SerializeField]
-        InputField offsetXInput;
-        [SerializeField]
-        InputField offsetYInput;
-        [SerializeField]
-        InputField angleZInput;
-        [SerializeField]
-        InputField distanceInput;
-
         public Action OnApply;
+
         public void Load() {
             string filePath = Application.dataPath + "/adjust.json";
 
@@ -30,12 +25,14 @@ namespace AmebaStrike {
                 Debug.Log("create new adjust data");
                 Data = new AdjustData();
 
-            } else {
+            } 
+            else {
                 Debug.Log("load adjust data");
                 string stringData = File.ReadAllText(filePath);
                 Data = JsonUtility.FromJson<AdjustData>(stringData);
             }
         }
+
         public void Save() {
             string filePath = Application.dataPath + "/adjust.json";
             string stringData = JsonUtility.ToJson(Data);
@@ -43,36 +40,43 @@ namespace AmebaStrike {
             Debug.Log("save adjust data");
 
         }
+
         public void ChangeDisplayWidth(string arg) {
             float value;
             float.TryParse(arg, out value);
             Data.displayWidth = value;
         }
+
         public void ChangeDisplayHeight(string arg) {
             float value;
             float.TryParse(arg, out value);
             Data.displayHeight = value;
         }
+
         public void ChangeOffsetX(string arg) {
             float value;
             float.TryParse(arg, out value);
             Data.offsetX = value;
         }
+
         public void ChangeOffsetY(string arg) {
             float value;
             float.TryParse(arg, out value);
             Data.offsetY = value;
         }
+
         public void ChangeAngleZ(string arg) {
             float value;
             float.TryParse(arg, out value);
             Data.angleZ = value;
         }
+
         public void ChangeDistance(string arg) {
             float value;
             float.TryParse(arg, out value);
             Data.distance = value;
         }
+
         public void DisplayValues() {
             if (displayWidthInput != null) {
                 displayWidthInput.text = Data.displayWidth.ToString();
@@ -93,6 +97,7 @@ namespace AmebaStrike {
                 distanceInput.text = Data.distance.ToString();
             }
         }
+        
         public void Apply() {
             if (OnApply != null) {
                 OnApply();

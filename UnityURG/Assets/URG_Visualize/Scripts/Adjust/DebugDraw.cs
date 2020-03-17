@@ -6,7 +6,7 @@ using UnityEngine;
 namespace AmebaStrike {
     public class DebugDraw : MonoBehaviour {
 
-        public Material material; // 使用しているシェーダについては後述
+        public Material material;
         public int vertexCount = 2;
         public int instanceCount = 100;
 
@@ -91,6 +91,7 @@ namespace AmebaStrike {
             // シェーダに頂点 ID とインスタンス ID がやってくるのでそれを利用して描画する
             Graphics.DrawProceduralNow(MeshTopology.LineStrip, vertexCount, instanceCount);
         }
+        
         public void SetupBuffer(SCIP_Parameter parameter, int startIndex, int endIndex) {
             material.SetInt("_AFRT", parameter.AFRT);
             material.SetInt("_ARES", parameter.ARES);
@@ -104,11 +105,13 @@ namespace AmebaStrike {
             instanceCount = endIndex - startIndex + 1;
             bufferDistances = new ComputeBuffer(instanceCount, sizeof(int), ComputeBufferType.Default);
         }
+
         public void UpdateValue(List<int> distances) {
             
             bufferDistances.SetData(distances);
             material.SetBuffer("buf_Distances", bufferDistances);
         }
+
         public void SetAdjustData(AdjustData data) {
             material.SetFloat("_AngleZ", data.angleZ);
             Debug.Log(data.offsetX * 0.001f + " " + (data.displayHeight * 0.5f + data.offsetY) * 0.001f);

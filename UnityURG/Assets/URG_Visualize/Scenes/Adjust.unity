@@ -538,6 +538,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afc8b9bc826d95141bad3c8bb4360981, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  displayWidthInput: {fileID: 1342527517}
+  displayHeightInput: {fileID: 1328753735}
+  offsetXInput: {fileID: 781653930}
+  offsetYInput: {fileID: 404981378}
+  angleZInput: {fileID: 193070822}
+  distanceInput: {fileID: 1375335456}
   Data:
     displayWidth: 450
     displayHeight: 300
@@ -545,12 +551,6 @@ MonoBehaviour:
     offsetY: 50
     angleZ: 180
     distance: 500
-  displayWidthInput: {fileID: 1342527517}
-  displayHeightInput: {fileID: 1328753735}
-  offsetXInput: {fileID: 781653930}
-  offsetYInput: {fileID: 404981378}
-  angleZInput: {fileID: 193070822}
-  distanceInput: {fileID: 1375335456}
 --- !u!4 &230958117
 Transform:
   m_ObjectHideFlags: 0
@@ -3987,7 +3987,7 @@ MonoBehaviour:
   sizeMinThreshold: 0.005
   sizeMaxThreshold: 0.1
   centerThreshold: 1
-  detectObjNum: 3
+  detectObjectQuantity: 1
 --- !u!4 &1961368131
 Transform:
   m_ObjectHideFlags: 0
