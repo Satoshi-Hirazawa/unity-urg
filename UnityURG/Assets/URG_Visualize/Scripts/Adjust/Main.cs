@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using SensorUtility;
 
 namespace URG.Adjust {
     public class Main : MonoBehaviour {
@@ -51,8 +52,8 @@ namespace URG.Adjust {
         void OnDetectPosListener(Vector2 pos, int num) {
 
             Vector2 filtering;
-            filtering.x = lowPass(oldPos.x, pos.x);
-            filtering.y = lowPass(oldPos.y, pos.y);
+            filtering.x = SensorUtil.lowPass(oldPos.x, pos.x);
+            filtering.y = SensorUtil.lowPass(oldPos.y, pos.y);
 
             Vector2 screenPos = mainCamera.WorldToScreenPoint(filtering);
             // Debug.Log(filtering.x + " : " + filtering.y);
@@ -68,12 +69,6 @@ namespace URG.Adjust {
             trail.transform.position = filtering;
             positionText.rectTransform.position = screenPos;
             oldPos = filtering;
-        }
-
-        float lowPass(float _oldData, float _rawData){
-            float filterVal = 0.1f;
-            float _filtering = (_oldData * (1 - filterVal)) + (((float)_rawData)  *  filterVal);
-            return _filtering;
         }
     }
 }

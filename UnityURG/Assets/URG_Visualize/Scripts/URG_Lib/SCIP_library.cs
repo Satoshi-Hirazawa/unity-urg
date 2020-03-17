@@ -77,11 +77,13 @@ namespace SCIP_library
 
                 if (split_command[1].StartsWith("00")) {
                     return true;
-                } else if (split_command[1].StartsWith("99")) {
+                } 
+                else if (split_command[1].StartsWith("99")) {
                     time_stamp = SCIP_Reader.decode_long(split_command[2], 4);
                     distance_data(split_command, 3, ref distances);
                     return true;
-                } else {
+                } 
+                else {
                     return false;
                 }
             
@@ -98,11 +100,13 @@ namespace SCIP_library
 
             if (split_command[1].StartsWith("00")) {
                 return true;
-            } else if (split_command[1].StartsWith("99")) {
+            } 
+            else if (split_command[1].StartsWith("99")) {
                 time_stamp = SCIP_Reader.decode_long(split_command[2], 4);
                 distance_data(split_command, 3, ref distances, 2);
                 return true;
-            } else {
+            } 
+            else {
                 return false;
             }
 
@@ -202,7 +206,8 @@ namespace SCIP_library
                 int.TryParse(split_command[8].Substring(5, split_command[8].Length - 7), out decoded_data.AFRT);
                 int.TryParse(split_command[9].Substring(5, split_command[9].Length - 7), out decoded_data.SCAN);
                 return true;
-            } else {
+            } 
+            else {
                 return false;
             }
         }

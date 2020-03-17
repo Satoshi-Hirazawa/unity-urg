@@ -27,7 +27,8 @@ public class URGTcpClient : MonoBehaviour {
             receiveThread.IsBackground = true;
             receiveThread.Start();
         
-        } catch (Exception e) {
+        } 
+        catch (Exception e) {
             Debug.Log("Exception: " + e.Message);
         }
     }
@@ -45,7 +46,8 @@ public class URGTcpClient : MonoBehaviour {
                 
                 }
             }
-        } catch (SocketException socketException) {
+        } 
+        catch (SocketException socketException) {
             Debug.Log("Socket exception: " + socketException);
         }
     }
@@ -70,17 +72,20 @@ public class URGTcpClient : MonoBehaviour {
                 if (buf == '\n') {
                     if (is_NL) {
                         is_NL2 = true;
-                    } else {
+                    } 
+                    else {
                         is_NL = true;
                     }
-                } else {
+                } 
+                else {
                     is_NL = false;
                 }
                 sb.Append(buf);
             } while (!is_NL2);
 
             return sb.ToString();
-        } else {
+        } 
+        else {
             return null;
         }
     }
@@ -106,7 +111,8 @@ public class URGTcpClient : MonoBehaviour {
                 stream.Write(bytes, 0, bytes.Length);
                 Debug.Log("send: " + msg);
             }
-        } catch (SocketException socketException) {
+        } 
+        catch (SocketException socketException) {
             Debug.Log("Socket exception: " + socketException);
         }
     }
