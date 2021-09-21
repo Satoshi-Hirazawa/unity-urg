@@ -8,7 +8,7 @@ namespace URG {
     public class URGHandler : MonoBehaviour {
 
         [SerializeField] URGTcpClient tcpClient;
-        [SerializeField] AdjustDataConfigurator adjustDataConfigurator;
+        // [SerializeField] AdjustDataConfigurator adjustDataConfigurator;
         [SerializeField] DebugDraw debugDraw;
 
         [SerializeField] string ip = "192.168.0.10";
@@ -20,7 +20,7 @@ namespace URG {
         [SerializeField, Range(0, 1)] float sizeMinThreshold = 0.05f;
         [SerializeField, Range(0.1f, 1)] float sizeMaxThreshold = 0.05f;
         [SerializeField, Range(0, 1)] float centerThreshold = 0.05f;
-        [SerializeField] int detectObjectQuantity = 1;
+        [SerializeField] int detectObjectQuantity = 6;
 
         int start_index;
         int end_index;
@@ -29,7 +29,8 @@ namespace URG {
         bool isDebugDraw;
         Vector2 centerPos;
 
-        List<int> distances = new List<int>();
+        // List<int> distances = new List<int>();
+        List<long> distances = new List<long>();
         List<Vector2> positions = new List<Vector2>();
         List<DetectObject> detectObjectList = new List<DetectObject>();
 
@@ -79,7 +80,8 @@ namespace URG {
                     start_index = DegToIndex(start_deg);
                     end_index = DegToIndex(end_deg);
                     tcpClient.OnReceiveCallback += OnReceiveData;
-                    tcpClient.Send(SCIP_Writer.MS(start_index, end_index));
+                    // tcpClient.Send(SCIP_Writer.MS(start_index, end_index));
+                    tcpClient.Send(SCIP_Writer.MD(start_index, end_index));
                     if (debugDraw != null) {
                         debugDraw.SetupBuffer(parameter, start_index, end_index);
                     }
@@ -102,19 +104,24 @@ namespace URG {
 
         void SearchObject() {
 
+            sizeMinThreshold = adjustData.min;
+            sizeMaxThreshold = adjustData.max;
+            centerThreshold = adjustData.center;
+
             bool isDetected = false;
             List<DetectObject> newDetectObjectList = new List<DetectObject>();
             
             for (int i = 0; i < distances.Count; i++) {
                 float deg = adjustData.angleZ + IndexToDeg(start_index + i);
                 Vector2 position = centerPos + new Vector2(Mathf.Cos(deg * Mathf.Deg2Rad), Mathf.Sin(deg * Mathf.Deg2Rad)) * distances[i] * 0.001f;
+
                 Debug.DrawLine(centerPos, position, Color.white);
 
                 if (0 < distances[i] && -(adjustData.displayWidth * 0.0005f) < position.x && position.x < adjustData.displayWidth * 0.0005f &&
                                         -(adjustData.displayHeight * 0.0005f) < position.y && position.y < adjustData.displayHeight * 0.0005f) {
                     if (!isDetected) {
                         DetectObject detectObject = new DetectObject();
-                        detectObject.count = 1;
+                        detectObject.count = i;
                         detectObject.indices.Add(i);
                         detectObject.positions.Add(position);
                         detectObject.degrees.Add(deg);
@@ -137,8 +144,7 @@ namespace URG {
             }
 
             for (int i = 0; i < newDetectObjectList.Count; i++) {
-                if(detectObjectQuantity <= i) break;
-
+                // if(detectObjectQuantity <= i) break;
                 newDetectObjectList[i].CalcCenter();
                 newDetectObjectList[i].CalcSize();
 
@@ -158,14 +164,12 @@ namespace URG {
                     }
                 }
 
-                // if (newDetectObjectList[i].count == 2) {
-                //     // Debug.Log(newDetectObjectList[i].size);
-                //     if (newDetectObjectList[i].size > sizeMinThreshold)  {
-                //         if (OnDetect != null) {
-                //             OnDetect(newDetectObjectList[i].center);
-                //         }
-                //     }
-                // }
+                if (newDetectObjectList[i].size > sizeMinThreshold)  {
+                    if (OnDetect != null) {
+                        OnDetect(newDetectObjectList[i].center);
+                        
+                    }
+                }
             }
             detectObjectList.Clear();
             detectObjectList = newDetectObjectList;
@@ -175,32 +179,38 @@ namespace URG {
 
             parameter = new SCIP_Parameter();
             if (SCIP_Reader.PP(responce, ref parameter)) {
-                Debug.Log("model: " + parameter.MODL +
-                    " d min: " + parameter.DMIN +
-                    " d max: " + parameter.DMAX +
-                    " ares: " + parameter.ARES +
-                    " a min: " + parameter.AMIN +
-                    " a max: " + parameter.AMAX +
-                    " afrt: " + parameter.AFRT +
+                Debug.Log(
+                    "model: " + parameter.MODL + "\n" +
+                    " d min: " + parameter.DMIN + "\n" +
+                    " d max: " + parameter.DMAX + "\n" +
+                    " ares: " + parameter.ARES + "\n" +
+                    " a min: " + parameter.AMIN + "\n" +
+                    " a max: " + parameter.AMAX + "\n" +
+                    " afrt: " + parameter.AFRT + "\n" +
                     " scan: " + parameter.SCAN
                     );
-                state = State.SCAN;
             } else {
                 Debug.Log("ReceiveParameter error");
+                return;
             }
+            state = State.SCAN;
             tcpClient.OnReceiveCallback -= OnReceiveParameter;
         }
 
         public void OnReceiveData(string responce) {
             lock (((ICollection)distances).SyncRoot) {
-                if (SCIP_Reader.MS(responce, ref timestamp, ref distances)) {
+                // if (SCIP_Reader.MS(responce, ref timestamp, ref distances)) {
+                //     isUpdateSensor = true;
+                // }
+                if (SCIP_Reader.MD(responce, ref timestamp, ref distances)) {
                     isUpdateSensor = true;
                 }
+
             }
         }
 
         float IndexToDeg(int index) {
-            return (index - parameter.AFRT) * 360f / (float)parameter.ARES + 90f;
+            return (((index - parameter.AFRT) * 360f) / (float)parameter.ARES) + 90f;
         }
 
         int DegToIndex(float deg) {

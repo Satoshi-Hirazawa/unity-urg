@@ -12,5 +12,13 @@ namespace URG {
         public float offsetY = 500;
         public float angleZ = 180;
         public float distance = 3000;
+
+        public float calibX = 1f;
+        public float calibY = 1f;
+
+        public float min = 0.01f;
+        public float max = 0.5f;
+        public float center = 0.5f;
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using SCIP_library;
+﻿
+using SCIP_library;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +12,7 @@ namespace URG {
         public int instanceCount = 100;
 
         private ComputeBuffer bufferPoints;
+
         private ComputeBuffer bufferPos;
         private Vector3[] origPos;
         private Vector3[] pos;
@@ -103,10 +105,16 @@ namespace URG {
                 bufferDistances = null;
             }
             instanceCount = endIndex - startIndex + 1;
-            bufferDistances = new ComputeBuffer(instanceCount, sizeof(int), ComputeBufferType.Default);
+            // bufferDistances = new ComputeBuffer(instanceCount, sizeof(int), ComputeBufferType.Default);
+            bufferDistances = new ComputeBuffer(instanceCount, sizeof(long), ComputeBufferType.Default);
         }
 
-        public void UpdateValue(List<int> distances) {
+        // public void UpdateValue(List<int> distances) {
+            
+        //     bufferDistances.SetData(distances);
+        //     material.SetBuffer("buf_Distances", bufferDistances);
+        // }
+        public void UpdateValue(List<long> distances) {
             
             bufferDistances.SetData(distances);
             material.SetBuffer("buf_Distances", bufferDistances);
