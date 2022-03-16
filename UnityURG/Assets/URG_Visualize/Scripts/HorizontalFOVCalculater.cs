@@ -31,6 +31,6 @@ namespace HorizontalFOV
             return Mathf.Atan(Mathf.Tan(horizontalFOV / 2f * Mathf.Deg2Rad) / aspect) * 2f * Mathf.Rad2Deg;
         }
 
-        }
+    }
 
 }

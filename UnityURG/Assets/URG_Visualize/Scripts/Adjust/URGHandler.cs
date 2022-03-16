@@ -68,6 +68,14 @@ namespace URG {
             isDebugDraw = b;
         }
 
+        void OnDrawGizmosSelected()
+        {
+            // Draw a semitransparent blue cube at the transforms position
+            Gizmos.color = new Color(1f, 0.6f, 0f, 0.5f);
+            Vector3 p = new Vector3(centerPos.x, centerPos.y, (adjustData.distance / 1000f) + transform.position.z);
+            Gizmos.DrawCube(p, new Vector3(0.01f, 0.01f, 0.01f));
+        }
+
         void Update() {
             switch (state) {
                 case State.OPEN:
@@ -110,12 +118,28 @@ namespace URG {
 
             bool isDetected = false;
             List<DetectObject> newDetectObjectList = new List<DetectObject>();
-            
+
+                Vector2 p1 = new Vector2(-adjustData.displayWidth * 0.0005f, adjustData.displayHeight * 0.0005f);
+                Vector2 p2 = new Vector2(adjustData.displayWidth *  0.0005f, adjustData.displayHeight * 0.0005f);
+                Vector2 p3 = new Vector2(adjustData.displayWidth *  0.0005f, -adjustData.displayHeight * 0.0005f);
+                Vector2 p4 = new Vector2(-adjustData.displayWidth * 0.0005f, -adjustData.displayHeight * 0.0005f);
+                
+                Debug.DrawLine(p1, p2, Color.red);
+                Debug.DrawLine(p1, p4, Color.cyan);
+                Debug.DrawLine(p3, p4, Color.magenta);
+                Debug.DrawLine(p2, p3, Color.green);
+
+
+                Debug.Log("p1 : " + p1.x + " : " + p1.y);
+                Debug.Log("p2 : " + p2.x + " : " + p2.y);
+                Debug.Log("p3 : " + p3.x + " : " + p3.y);
+                Debug.Log("p4 : " + p4.x + " : " + p4.y);
+
             for (int i = 0; i < distances.Count; i++) {
                 float deg = adjustData.angleZ + IndexToDeg(start_index + i);
                 Vector2 position = centerPos + new Vector2(Mathf.Cos(deg * Mathf.Deg2Rad), Mathf.Sin(deg * Mathf.Deg2Rad)) * distances[i] * 0.001f;
 
-                Debug.DrawLine(centerPos, position, Color.white);
+                // Debug.DrawLine(centerPos, position, Color.white);
 
                 if (0 < distances[i] && -(adjustData.displayWidth * 0.0005f) < position.x && position.x < adjustData.displayWidth * 0.0005f &&
                                         -(adjustData.displayHeight * 0.0005f) < position.y && position.y < adjustData.displayHeight * 0.0005f) {
@@ -158,7 +182,7 @@ namespace URG {
 
                         if (newDetectObjectList[i].size > sizeMinThreshold && newDetectObjectList[i].size < sizeMaxThreshold) {
                             if (OnDetect != null) {
-                                OnDetectionPosition(newDetectObjectList[i].center, i);
+                                // OnDetectionPosition(newDetectObjectList[i].center, i);
                             }
                         }
                     }
@@ -166,7 +190,8 @@ namespace URG {
 
                 if (newDetectObjectList[i].size > sizeMinThreshold)  {
                     if (OnDetect != null) {
-                        OnDetect(newDetectObjectList[i].center);
+                        OnDetectionPosition(newDetectObjectList[i].center, i);
+                        // OnDetect(newDetectObjectList[i].center);
                         
                     }
                 }

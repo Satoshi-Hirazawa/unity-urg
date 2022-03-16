@@ -35,7 +35,7 @@ namespace URG {
         public Action OnApply;
 
         public void Load() {
-            string filePath = Application.dataPath + "/Resources/adjust.json";
+            string filePath = Application.dataPath + "/adjust.json";
 
             if (!File.Exists(filePath)) {
                 Debug.Log("create new adjust data");
@@ -67,7 +67,7 @@ namespace URG {
         }
 
         public void Save() {
-            string filePath = Application.dataPath + "/Resources/adjust.json";
+            string filePath = Application.dataPath + "/adjust.json";
             string stringData = JsonUtility.ToJson(Data);
             Debug.Log(stringData);
             File.WriteAllText(filePath, stringData);

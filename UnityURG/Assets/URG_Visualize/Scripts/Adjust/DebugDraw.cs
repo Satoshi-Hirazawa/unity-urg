@@ -17,6 +17,8 @@ namespace URG {
         private Vector3[] origPos;
         private Vector3[] pos;
 
+        private bool isDebugDraw = false; 
+
         private ComputeBuffer bufferDistances;
 
         void Start() {
@@ -48,8 +50,6 @@ namespace URG {
             // 実際の位置は Update() 内で渡す
             bufferPos = new ComputeBuffer(instanceCount, 12);
             material.SetBuffer("buf_Positions", bufferPos);
-
-            
         }
 
         private void ReleaseBuffers() {
@@ -71,26 +71,38 @@ namespace URG {
             ReleaseBuffers();
         }
 
-        //void Update() {
-            // 座標を更新して GPU へ転送
+        void Update() {
+
             
-            //var t = Time.timeSinceLevelLoad;
-            //for (var i = 0; i < instanceCount; ++i) {
+            if(Input.GetKey(KeyCode.LeftShift))
+            {
+                if(Input.GetKeyDown(KeyCode.D))
+                {
+                    isDebugDraw = !isDebugDraw;
+                }
+            }
+            
+            // // 座標を更新して GPU へ転送
+            
+            // var t = Time.timeSinceLevelLoad;
+            // for (var i = 0; i < instanceCount; ++i) {
             //    var x = Mathf.Sin((t + i) * 1.17f);
             //    var y = Mathf.Sin((t - i) * 1.0f);
             //    var z = Mathf.Cos((t + i) * 1.87f);
             //    pos[i] = origPos[i] + new Vector3(x, y, z);
-            //}
-            //bufferPos.SetData(pos);
+            // }
+            // bufferPos.SetData(pos);
             
-        //}
+        }
 
         void OnPostRender() {
-        //void Update() {
+
+        // void Update() {
             // 最後に SetPass() したマテリアルで描画を行う
             material.SetPass(0);
             // インスタンシングにより描画
             // シェーダに頂点 ID とインスタンス ID がやってくるのでそれを利用して描画する
+            if(!isDebugDraw) return;
             Graphics.DrawProceduralNow(MeshTopology.LineStrip, vertexCount, instanceCount);
         }
         
@@ -118,11 +130,11 @@ namespace URG {
             
             bufferDistances.SetData(distances);
             material.SetBuffer("buf_Distances", bufferDistances);
+            
         }
 
         public void SetAdjustData(AdjustData data) {
             material.SetFloat("_AngleZ", data.angleZ);
-            Debug.Log(data.offsetX * 0.001f + " " + (data.displayHeight * 0.5f + data.offsetY) * 0.001f);
             //material.SetVector("_Center", new Vector3(0, 0.9f, 0));
             material.SetVector("_Center", new Vector3(data.offsetX * 0.001f, (data.displayHeight * 0.5f + data.offsetY) * 0.001f, 0));
         }

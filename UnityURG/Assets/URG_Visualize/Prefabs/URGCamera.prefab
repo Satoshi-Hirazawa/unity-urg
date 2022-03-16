@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tcpClient: {fileID: 6522794714406841391}
-  debugDraw: {fileID: 6522794714890621767}
+  debugDraw: {fileID: 0}
   ip: 192.168.0.10
   port: 10940
   start_deg: 0
@@ -76,7 +76,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6522794714890621760}
   - component: {fileID: 6522794714890621761}
-  - component: {fileID: 6522794714890621767}
   - component: {fileID: 2870857245918316566}
   m_Layer: 0
   m_Name: URGCamera
@@ -143,21 +142,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!114 &6522794714890621767
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6522794714890621763}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16e0e72fb6add474eb4028464e48e3ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  material: {fileID: 2100000, guid: c69679769d0d6374ba95d1f8c25d6fab, type: 2}
-  vertexCount: 2
-  instanceCount: 100
 --- !u!114 &2870857245918316566
 MonoBehaviour:
   m_ObjectHideFlags: 0
