@@ -29,8 +29,8 @@ namespace URG.Adjust {
             adjustDataConfigurator.OnApply += OnApplyListener;
             mainCamera = Camera.main;
             mainCamera.transform.position = new Vector3(0, 0, -adjustDataConfigurator.Data.distance * 0.001f);
-            // mainCamera.fieldOfView = 2.0f * Mathf.Atan(adjustDataConfigurator.Data.displayHeight * 0.5f / 
-            //                                             adjustDataConfigurator.Data.distance) * Mathf.Rad2Deg;
+            mainCamera.fieldOfView = 2.0f * Mathf.Atan(adjustDataConfigurator.Data.displayHeight * 0.5f / 
+                                                        adjustDataConfigurator.Data.distance) * Mathf.Rad2Deg;
 
             urgHandler.SetIsDebugDraw(true);
             urgHandler.Init();

@@ -53,7 +53,7 @@ public class RayCaster : MonoBehaviour
         // Update is called once per frame
         void Update() 
         {
-            urgCamera.fieldOfView = HorizontalFOV.HorizontalFOVCalculater.SetFieldOfView(baseFieldOfView, baseAspect.x, baseAspect.y);
+            // urgCamera.fieldOfView = HorizontalFOV.HorizontalFOVCalculater.SetFieldOfView(baseFieldOfView, baseAspect.x, baseAspect.y);
             // urgCamera.transform.position = Camera.main.transform.position;
 
             if (Input.GetMouseButtonDown(0))

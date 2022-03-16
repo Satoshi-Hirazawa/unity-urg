@@ -119,21 +119,16 @@ namespace URG {
             bool isDetected = false;
             List<DetectObject> newDetectObjectList = new List<DetectObject>();
 
-                Vector2 p1 = new Vector2(-adjustData.displayWidth * 0.0005f, adjustData.displayHeight * 0.0005f);
-                Vector2 p2 = new Vector2(adjustData.displayWidth *  0.0005f, adjustData.displayHeight * 0.0005f);
-                Vector2 p3 = new Vector2(adjustData.displayWidth *  0.0005f, -adjustData.displayHeight * 0.0005f);
-                Vector2 p4 = new Vector2(-adjustData.displayWidth * 0.0005f, -adjustData.displayHeight * 0.0005f);
-                
-                Debug.DrawLine(p1, p2, Color.red);
-                Debug.DrawLine(p1, p4, Color.cyan);
-                Debug.DrawLine(p3, p4, Color.magenta);
-                Debug.DrawLine(p2, p3, Color.green);
+            Vector2 p1 = new Vector2(-adjustData.displayWidth * 0.0005f, adjustData.displayHeight * 0.0005f);
+            Vector2 p2 = new Vector2(adjustData.displayWidth *  0.0005f, adjustData.displayHeight * 0.0005f);
+            Vector2 p3 = new Vector2(adjustData.displayWidth *  0.0005f, -adjustData.displayHeight * 0.0005f);
+            Vector2 p4 = new Vector2(-adjustData.displayWidth * 0.0005f, -adjustData.displayHeight * 0.0005f);
+            
+            Debug.DrawLine(p1, p2, Color.red);
+            Debug.DrawLine(p1, p4, Color.cyan);
+            Debug.DrawLine(p3, p4, Color.magenta);
+            Debug.DrawLine(p2, p3, Color.green);
 
-
-                Debug.Log("p1 : " + p1.x + " : " + p1.y);
-                Debug.Log("p2 : " + p2.x + " : " + p2.y);
-                Debug.Log("p3 : " + p3.x + " : " + p3.y);
-                Debug.Log("p4 : " + p4.x + " : " + p4.y);
 
             for (int i = 0; i < distances.Count; i++) {
                 float deg = adjustData.angleZ + IndexToDeg(start_index + i);
