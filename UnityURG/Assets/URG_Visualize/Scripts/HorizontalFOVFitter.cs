@@ -13,7 +13,7 @@ public class HorizontalFOVFitter : MonoBehaviour
         if(mainCamera == null)
         {
         }
-        SetFov();
+        // SetFov();
     }
 
     void Update() 

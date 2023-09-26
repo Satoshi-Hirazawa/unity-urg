@@ -14,6 +14,7 @@ public class RayCaster : MonoBehaviour
         [SerializeField] AdjustDataConfigurator adjustDataConfigurator;
         [SerializeField] URGHandler urgHandler;
         [SerializeField] Text positionText;
+ 
         [SerializeField] Camera urgCamera;
 
         [SerializeField] Vector2 baseAspect = new Vector2(1920, 1080);
@@ -25,36 +26,73 @@ public class RayCaster : MonoBehaviour
         [SerializeField] float offsetY;
 
         bool isDetect = false;
-        Vector2 oldPos;
+        Vector2 detectPos;
         Camera mainCamera;
 
         public Action<RaycastHit> OnAlienHit;
+        public Action OnTurtleTrailHit;
+        public Action OnGlawTrailHit;
         public Action OnStart;
+        public Action OnConnectionURG;
+
 
         void Start() {
             adjustDataConfigurator.Load();
             adjustDataConfigurator.DisplayValues();
             adjustDataConfigurator.OnApply += OnApplyListener;
-            mainCamera = Camera.main;
-            urgCamera.transform.position = new Vector3(0, 0, -adjustDataConfigurator.Data.distance * 0.001f);
-            baseFieldOfView = 2.0f * Mathf.Atan(adjustDataConfigurator.Data.displayHeight * 0.5f / 
-                                                     adjustDataConfigurator.Data.distance) * Mathf.Rad2Deg;
 
+            baseFieldOfView = 2.0f * Mathf.Atan(adjustDataConfigurator.Data.displayHeight * 0.5f / (Mathf.Abs(urgCamera.transform.position.z) * 1000f) ) * Mathf.Rad2Deg;
             urgCamera.fieldOfView = HorizontalFOV.HorizontalFOVCalculater.SetFieldOfView(baseFieldOfView, baseAspect.x, baseAspect.y);
 
-            urgHandler.SetIsDebugDraw(true);
             urgHandler.Init();
             urgHandler.SetAdjustData(adjustDataConfigurator.Data);
+            urgHandler.OnConnectionURG += ConnectionURG;
             urgHandler.OnDetect += OnDetectListener;
             urgHandler.OnDetectionPosition += OnDetectPosListener;
+            urgHandler.OnDetectionPositionArry += OnDetectPosArrayListener;
             urgHandler.OnDetectionEnd += OnDetectEndListener;
+
+            urgHandler.SetDebugDraw(true);
+
+//             if(SceneLoader.GetSceneName() != "Adjust")
+//             {   
+//                 adjustDataConfigurator.transform.parent.gameObject.SetActive(false);
+//                 urgHandler.SetDebugDraw(false);            
+//                 positionText.transform.gameObject.SetActive(false);
+//             }
+
+// #if UNITY_EDITOR
+
+// #else
+//         Cursor.visible = false;
+//         if(SceneLoader.GetSceneName() == "Adjust")
+//         {
+//             Cursor.visible = true;    
+//         }
+// #endif
+
         }
 
         // Update is called once per frame
         void Update() 
         {
-            // urgCamera.fieldOfView = HorizontalFOV.HorizontalFOVCalculater.SetFieldOfView(baseFieldOfView, baseAspect.x, baseAspect.y);
-            // urgCamera.transform.position = Camera.main.transform.position;
+            baseFieldOfView = 2.0f * Mathf.Atan(adjustDataConfigurator.Data.displayHeight * 0.5f / (Mathf.Abs(urgCamera.transform.position.z) * 1000f) ) * Mathf.Rad2Deg;
+            urgCamera.fieldOfView = HorizontalFOV.HorizontalFOVCalculater.SetFieldOfView(baseFieldOfView, baseAspect.x, baseAspect.y);
+
+            if(Input.GetKey(KeyCode.LeftShift))
+            {
+                if(Input.GetKeyUp(KeyCode.X))
+                {
+                    adjustDataConfigurator.transform.parent.gameObject.SetActive(!adjustDataConfigurator.transform.parent.gameObject.activeSelf);
+                    positionText.transform.gameObject.SetActive(adjustDataConfigurator.transform.parent.gameObject.activeSelf);    
+                    Cursor.visible = adjustDataConfigurator.transform.parent.gameObject.activeSelf;                
+                }
+                if(Input.GetKeyDown(KeyCode.D))
+                {
+
+                    urgHandler.SetDebugDraw(!urgHandler.GetDebugDraw());
+                }
+            } 
 
             if (Input.GetMouseButtonDown(0))
             {
@@ -65,15 +103,23 @@ public class RayCaster : MonoBehaviour
                 {
                     if(hit.collider.CompareTag("Test"))
                     {
+                        hit.collider.transform.gameObject.GetComponent<CubeTest>().ChangeColor();
                         Debug.Log(hit.collider.gameObject.name);
-                    }                    
+                    } 
                 }
             }
         }
 
         public void CameraInit()
         {
-            
+
+        }
+        void ConnectionURG()
+        {
+            if(OnConnectionURG != null)
+            {
+                OnConnectionURG();
+            }
         }
         void OnApplyListener() {
             urgHandler.SetAdjustData(adjustDataConfigurator.Data);
@@ -87,32 +133,30 @@ public class RayCaster : MonoBehaviour
             isDetect = false;
         }
 
-        void OnDetectPosListener(Vector2 pos, int num) {
-
-            // Vector2 filtering;
-            // filtering.x = SensorUtil.lowPass(oldPos.x, pos.x);
-            // filtering.y = SensorUtil.lowPass(oldPos.y, pos.y);
-
-            pos.x = pos.x * adjustDataConfigurator.Data.calibX;
-            pos.y = pos.y * adjustDataConfigurator.Data.calibY;
-
-            Vector2 screenPos = urgCamera.WorldToScreenPoint(pos);
-            RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(screenPos);
-
-            // Debug.DrawRay (ray.origin, ray.direction * 100, Color.red, 0.01f, false);
-
-            if(Physics.Raycast(ray,out hit))
+        void OnDetectPosArrayListener(Vector2[] pos) 
+        {
+            for(int i = 0; i < pos.Length; i++)
             {
-                
-                if(hit.collider.CompareTag("Test"))
+
+                pos[i].x = (pos[i].x * adjustDataConfigurator.Data.calibX) + adjustDataConfigurator.Data.worldPointOffsetX;
+                pos[i].y = (pos[i].y * adjustDataConfigurator.Data.calibY) + adjustDataConfigurator.Data.worldPointOffsetY;
+            
+                Vector2 screenPos = urgCamera.WorldToScreenPoint(pos[i]);
+                RaycastHit hit;
+                Ray ray = Camera.main.ScreenPointToRay(screenPos);
+                if(Physics.Raycast(ray,out hit))
                 {
-                    Debug.Log(hit.collider.gameObject.name);
+                    
+                    if(hit.collider.CompareTag("Test"))
+                    {
+                        hit.collider.transform.gameObject.GetComponent<CubeTest>().ChangeColor();
+                        Debug.Log(hit.collider.gameObject.name);
+                    }
                 }
+                positionText.rectTransform.position = screenPos;
             }
-        
-            positionText.rectTransform.position = screenPos;
-            // trail.transform.position = filtering;
-            // oldPos = filtering;
+
+        }
+        void OnDetectPosListener(Vector2 pos) {
         }
 }

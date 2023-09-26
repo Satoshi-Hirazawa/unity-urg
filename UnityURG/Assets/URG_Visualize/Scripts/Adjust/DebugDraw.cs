@@ -11,16 +11,20 @@ namespace URG {
         public int vertexCount = 2;
         public int instanceCount = 100;
 
-        private ComputeBuffer bufferPoints;
+        ComputeBuffer bufferPoints;
 
-        private ComputeBuffer bufferPos;
-        private Vector3[] origPos;
-        private Vector3[] pos;
+        ComputeBuffer bufferPos;
+        Vector3[] origPos;
+        Vector3[] pos;
 
-        private bool isDebugDraw = false; 
 
-        private ComputeBuffer bufferDistances;
-
+        ComputeBuffer bufferDistances;
+        bool isDebugDraw = false; 
+        public bool IsDebugDraw
+        {
+            get { return isDebugDraw; }
+            set { isDebugDraw = value; }
+        }
         void Start() {
             // 円周上の座標を作成・格納
             var verts = new Vector3[vertexCount];
@@ -30,6 +34,11 @@ namespace URG {
             }
 
             ReleaseBuffers();
+
+            if(material == null)
+            {
+                material = new Material(Shader.Find("Instanced/DebugDraw"));
+            }
 
             // 作成した円周上の座標を ComputeBuffer へ転送
             // 12 は float (4 byte x 3）
@@ -52,7 +61,7 @@ namespace URG {
             material.SetBuffer("buf_Positions", bufferPos);
         }
 
-        private void ReleaseBuffers() {
+        void ReleaseBuffers() {
             if (bufferPoints != null) {
                 bufferPoints.Release();
                 bufferPoints = null;
@@ -72,32 +81,22 @@ namespace URG {
         }
 
         void Update() {
-
+            // 座標を更新して GPU へ転送
             
-            if(Input.GetKey(KeyCode.LeftShift))
-            {
-                if(Input.GetKeyDown(KeyCode.D))
-                {
-                    isDebugDraw = !isDebugDraw;
-                }
-            }
-            
-            // // 座標を更新して GPU へ転送
-            
-            // var t = Time.timeSinceLevelLoad;
-            // for (var i = 0; i < instanceCount; ++i) {
+            //var t = Time.timeSinceLevelLoad;
+            //for (var i = 0; i < instanceCount; ++i) {
             //    var x = Mathf.Sin((t + i) * 1.17f);
             //    var y = Mathf.Sin((t - i) * 1.0f);
             //    var z = Mathf.Cos((t + i) * 1.87f);
             //    pos[i] = origPos[i] + new Vector3(x, y, z);
-            // }
-            // bufferPos.SetData(pos);
+            //}
+            //bufferPos.SetData(pos);
             
         }
 
         void OnPostRender() {
 
-        // void Update() {
+        //void Update() {
             // 最後に SetPass() したマテリアルで描画を行う
             material.SetPass(0);
             // インスタンシングにより描画
@@ -105,7 +104,9 @@ namespace URG {
             if(!isDebugDraw) return;
             Graphics.DrawProceduralNow(MeshTopology.LineStrip, vertexCount, instanceCount);
         }
-        
+        public void SetColor(Color color){
+            material.SetColor("_Color", color);
+        }
         public void SetupBuffer(SCIP_Parameter parameter, int startIndex, int endIndex) {
             material.SetInt("_AFRT", parameter.AFRT);
             material.SetInt("_ARES", parameter.ARES);
@@ -117,7 +118,7 @@ namespace URG {
                 bufferDistances = null;
             }
             instanceCount = endIndex - startIndex + 1;
-            // bufferDistances = new ComputeBuffer(instanceCount, sizeof(int), ComputeBufferType.Default);
+            // // bufferDistances = new ComputeBuffer(instanceCount, sizeof(int), ComputeBufferType.Default);
             bufferDistances = new ComputeBuffer(instanceCount, sizeof(long), ComputeBufferType.Default);
         }
 
@@ -130,13 +131,17 @@ namespace URG {
             
             bufferDistances.SetData(distances);
             material.SetBuffer("buf_Distances", bufferDistances);
-            
         }
 
         public void SetAdjustData(AdjustData data) {
+            if(material == null)
+            {
+                material = new Material(Shader.Find("Instanced/DebugDraw"));
+            }
             material.SetFloat("_AngleZ", data.angleZ);
+            Debug.Log(data.sensorOffsetX * 0.001f + " " + (data.displayHeight * 0.5f + data.sensorOffsetY) * 0.001f);
             //material.SetVector("_Center", new Vector3(0, 0.9f, 0));
-            material.SetVector("_Center", new Vector3(data.offsetX * 0.001f, (data.displayHeight * 0.5f + data.offsetY) * 0.001f, 0));
+            material.SetVector("_Center", new Vector3(data.sensorOffsetX * 0.001f, (data.displayHeight * 0.5f + data.sensorOffsetY) * 0.001f, 0));
         }
     }
 }
